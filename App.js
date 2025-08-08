@@ -7,14 +7,22 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import UnityView from '@azesmway/react-native-unity';
+
+import UnityBearController from './UnityBearController'; // 꼭 경로 맞게
 import CameraScreen from './CameraScreen';
+import FaceMeshScreen from './FaceMeshScreen';
+import AlignPreview from './src/screens/AlignPreview'; // 경로 맞게
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
-  const [view, setView] = useState('home'); // 'home' | 'unity' | 'camera'
+  const [view, setView] = useState('home'); // 'home' | 'unity' | 'camera' | 'facemesh' | 'align'
 
-  const goHome = () => setView('home');
+  console.log('App 렌더:', view);
+
+  const goHome = () => {
+    console.log('홈으로 이동!');
+    setView('home');
+  };
 
   return (
       <View style={[styles.container, { backgroundColor: isDarkMode ? '#222' : '#f0f0f0' }]}>
@@ -23,26 +31,49 @@ function App() {
         {view === 'home' && (
             <>
               <Text style={styles.title}>React Native + Unity 연동 테스트</Text>
-              <TouchableOpacity style={styles.button} onPress={() => setView('unity')}>
+
+              <TouchableOpacity style={styles.button} onPress={() => {
+                console.log('Unity 실행 버튼 클릭!');
+                setView('unity');
+              }}>
                 <Text style={styles.buttonText}>Unity 실행하기</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, { marginTop: 12 }]} onPress={() => setView('camera')}>
+
+              <TouchableOpacity style={[styles.button, { marginTop: 12 }]} onPress={() => {
+                console.log('카메라 실행 버튼 클릭!');
+                setView('camera');
+              }}>
                 <Text style={styles.buttonText}>카메라 실행하기</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.button, { marginTop: 12 }]} onPress={() => {
+                console.log('FaceMesh 실행 버튼 클릭!');
+                setView('facemesh');
+              }}>
+                <Text style={styles.buttonText}>MediaPipe FaceMesh</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                  style={[styles.button, { marginTop: 12 }]}
+                  onPress={() => {
+                    console.log('AlignPreview 실행 버튼 클릭!');
+                    setView('align');
+                  }}>
+                <Text style={styles.buttonText}>카메라+오버레이 보기</Text>
               </TouchableOpacity>
             </>
         )}
 
         {view === 'unity' && (
-            <View style={{ flex: 1, width: '100%', height: '100%' }}>
-              <UnityView style={{ flex: 1 }} />
-              <TouchableOpacity style={styles.floatingBackButton} onPress={goHome}>
-                <Text style={styles.backButtonText}>← 홈으로</Text>
-              </TouchableOpacity>
-            </View>
+            <UnityBearController onGoBack={goHome} />
         )}
-
         {view === 'camera' && (
             <CameraScreen onGoBack={goHome} />
+        )}
+        {view === 'facemesh' && (
+            <FaceMeshScreen onGoBack={goHome} />
+        )}
+        {view === 'align' && (
+            <AlignPreview onGoBack={goHome} />
         )}
       </View>
   );
@@ -77,21 +108,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  floatingBackButton: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 20,
-    zIndex: 1,
-  },
-  backButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',

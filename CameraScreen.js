@@ -42,13 +42,33 @@ function CameraScreen({ onGoBack }) {
                 if (devices && devices.length > 0) {
                     setDebugInfo(`${devices.length}개의 카메라 발견`);
 
-                    // 전면 카메라 찾기
-                    const frontCamera = devices.find(d => d.position === 'front');
+                    // 전면 카메라들 필터링
+                    const frontCameras = devices.filter(d => d.position === 'front');
 
-                    if (frontCamera) {
-                        console.log('Selected front camera:', frontCamera.name, 'ID:', frontCamera.id);
-                        setDebugInfo(`전면 카메라 선택: ${frontCamera.name}`);
-                        setDevice(frontCamera);
+                    if (frontCameras.length > 0) {
+                        // 광각 카메라 우선 선택
+                        let selectedCamera = null;
+
+                        // 1. ultra-wide-angle 카메라 찾기
+                        selectedCamera = frontCameras.find(camera =>
+                            camera.deviceType === 'ultra-wide-angle'
+                        );
+
+                        // 2. wide-angle 카메라 찾기 (ultra-wide가 없으면)
+                        if (!selectedCamera) {
+                            selectedCamera = frontCameras.find(camera =>
+                                camera.deviceType === 'wide-angle'
+                            );
+                        }
+
+                        // 3. 그래도 없으면 첫 번째 전면 카메라 사용
+                        if (!selectedCamera) {
+                            selectedCamera = frontCameras[0];
+                        }
+
+                        console.log('Selected front camera:', selectedCamera.name, 'Type:', selectedCamera.deviceType, 'ID:', selectedCamera.id);
+                        setDebugInfo(`전면 카메라 선택: ${selectedCamera.name} (${selectedCamera.deviceType})`);
+                        setDevice(selectedCamera);
                     } else {
                         console.log('No front camera found, using first available camera');
                         setDebugInfo(`전면 카메라 없음, 첫 번째 카메라 사용: ${devices[0].name}`);
@@ -73,7 +93,7 @@ function CameraScreen({ onGoBack }) {
     if (isLoading) {
         return (
             <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>전면 카메라를 초기화하는 중...</Text>
+                <Text style={styles.loadingText}>전면 광각 카메라를 초기화하는 중...</Text>
                 <Text style={styles.debugText}>{debugInfo}</Text>
                 <TouchableOpacity style={styles.backButton} onPress={onGoBack}>
                     <Text style={styles.backButtonText}>돌아가기</Text>
@@ -111,9 +131,9 @@ function CameraScreen({ onGoBack }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.successText}>카메라 초기화 성공!</Text>
+            <Text style={styles.successText}>광각 카메라 초기화 성공!</Text>
             <Text style={styles.cameraInfoText}>
-                {device.name} (ID: {device.id})
+                {device.name} ({device.deviceType}) - ID: {device.id}
             </Text>
             <Text style={styles.debugText}>{debugInfo}</Text>
 
