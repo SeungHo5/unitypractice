@@ -1,0 +1,50 @@
+export default groupList = {
+  studyGroups: [
+    {
+      groupId: 0,
+      name: "양대열님의 스터디",
+      description: "인프라 연구원 모집합니다.",
+      maxMembers: 15,
+      currentMembers: 12,
+      isPublic: false,
+      leaderId: '양대열',
+    },
+    {
+      groupId: 1,
+      name: "추지웅님의 스터디",
+      description: "B형 특강",
+      maxMembers: 20,
+      currentMembers: 20,
+      isPublic: false,
+      leaderId: '추지웅',
+    },
+    {
+      groupId: 2,
+      name: "정보처리기사 스터디",
+      description: "",
+      maxMembers: 10,
+      currentMembers: 1,
+      isPublic: false,
+      leaderId: '정유진',
+    },
+    {
+      groupId: 3,
+      name: "SQLD 스터디",
+      description: "INSERT INTO MY STUDY",
+      maxMembers: 10,
+      currentMembers: 7,
+      isPublic: false,
+      leaderId: '김민혁',
+    },
+    {
+      groupId: 4,
+      name: "TOEIC 스터디",
+      description: "Come on!",
+      maxMembers: 6,
+      currentMembers: 5,
+      isPublic: false,
+      leaderId: '오승호',
+    },
+  ],
+  totalCount: 5
+}
