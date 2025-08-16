@@ -3,16 +3,12 @@ apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
 
-
 react {
 }
 
 def enableSeparateBuildPerCPUArchitecture = false
-
 def enableProguardInReleaseBuilds = false
-
 def jscFlavor = 'org.webkit:android-jsc:+'
-
 
 def reactNativeArchitectures() {
     def value = project.getProperties().get("reactNativeArchitectures")
@@ -24,6 +20,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     namespace "com.cotm"
+
     defaultConfig {
         applicationId "com.cotm"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -32,11 +29,14 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
-    dexOptions {
-        javaMaxHeapSize "4g"
-        preDexLibraries false
+
+    // ✅ Java 11 명시(현재 JDK 11 사용)
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
+    // ✅ ABI 스플릿 설정
     splits {
         abi {
             reset()
@@ -45,6 +45,7 @@ android {
             include (*reactNativeArchitectures())
         }
     }
+
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -53,6 +54,7 @@ android {
             keyPassword 'android'
         }
     }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -69,45 +71,48 @@ android {
             def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {
-                output.versionCodeOverride =
-                        defaultConfig.versionCode * 1000 + versionCodes.get(abi)
+                output.versionCodeOverride = defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
         }
     }
 
-    // ✅ 여기 packagingOptions를 추가하세요!
+    // ✅ 최신 DSL로 패키징 충돌 정리(유니티/RN/mediapipe 공존 시 JNI 중복 방지)
     packagingOptions {
-        pickFirst '**/libreanimated.so'
-        pickFirst '**/libc++_shared.so'
-        pickFirst '**/libjsc.so'
-        pickFirst '**/libmain.so'
-        pickFirst '**/libunity.so'
+        jniLibs {
+            pickFirsts += [
+                '**/libc++_shared.so',
+                '**/libjsc.so',
+                '**/libmain.so',
+                '**/libunity.so',
+                '**/libreanimated.so'
+            ]
+        }
     }
 }
-
-
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation project(':unityLibrary')
+
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
     implementation 'androidx.multidex:multidex:2.0.1'
- 
+
+    // Mediapipe (facemesh)
     implementation 'com.google.mediapipe:facemesh:0.8.9-alpha-2'
     implementation 'com.google.mediapipe:solution-core:0.8.9-alpha-2'
 
-    
+    // Flipper (debug only)
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.squareup.okhttp3', module:'okhttp'
     }
-
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
-        implementation jscFlavor
+        implementation(jscFlavor)
     }
 }
 

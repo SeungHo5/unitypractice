@@ -19,7 +19,7 @@ const SideBar = ({ visible, onClose }) => {
     const [detailOpen, setDetailOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
-    const userName = "똑똑한참치김치찌개";
+    const userName = "기분조음";
     const navigation = useNavigation();
     const paddingTop = Platform.OS === 'android' ? RNStatusBar.currentHeight : 0;
 

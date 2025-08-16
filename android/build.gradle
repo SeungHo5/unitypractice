@@ -31,3 +31,20 @@ allprojects {
         }
     }
 }
+
+// 의존성 버전 통일을 위한 전역 설정
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion 33
+                buildToolsVersion "33.0.2"
+                
+                defaultConfig {
+                    minSdkVersion 24
+                    targetSdkVersion 33
+                }
+            }
+        }
+    }
+}

@@ -18,7 +18,7 @@ import Chat from '@pages/chat/Chat';
 import GroupListPage from '@pages/group/GroupListPage';
 import GroupPage from '@pages/group/GroupPage';
 import AlignPreview from "@pages/study/AlignPreview";
-import UnityBearController from "../pages/study/UnityBearController";
+import UnityBearController from "@pages/study/UnityBearController";
 
 const Stack = createNativeStackNavigator();
 
