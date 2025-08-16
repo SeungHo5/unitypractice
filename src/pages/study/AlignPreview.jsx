@@ -36,7 +36,7 @@ const MOUTH_LANDMARKS = [78, 308, 13, 14];        // MAR 계산용
 const HEAD_POSE_LANDMARKS = [1, 152, 10, 33, 263]; // Head Pose 계산용
 
 export default function AlignPreview({ onGoBack, onGoToUnity }) {
-  console.log('AlignPreview 컴포넌트 시작 - Python 호환 모드');
+  // console.log('AlignPreview 컴포넌트 시작 - Python 호환 모드');
   
   const navigation = useNavigation();
   
@@ -61,19 +61,19 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
   const device = devices.front;
 
   useEffect(() => {
-    console.log('화면 가로모드로 설정');
+    // console.log('화면 가로모드로 설정');
     Orientation.lockToLandscape();
     return () => {
-      console.log('화면 회전 제한 해제');
+      // console.log('화면 회전 제한 해제');
       Orientation.unlockAllOrientations();
     };
   }, []);
 
   useEffect(() => {
-    console.log('카메라 권한 요청 시작');
+    // console.log('카메라 권한 요청 시작');
     (async () => {
       const st = await Camera.requestCameraPermission();
-      console.log('카메라 권한 결과:', st);
+      // console.log('카메라 권한 결과:', st);
       setPerm(st);
       if (st === 'authorized') {
         setStatus('카메라 준비 완료! FaceMesh 초기화 중...');
@@ -84,60 +84,60 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
   }, []);
 
   const initializeFaceMesh = async () => {
-    console.log('FaceMesh 초기화 시작');
-    console.log('FaceMeshModule 상태 확인:', !!FaceMeshModule);
+    // console.log('FaceMesh 초기화 시작');
+    // console.log('FaceMeshModule 상태 확인:', !!FaceMeshModule);
     
     if (!FaceMeshModule) {
-      console.log('FaceMeshModule이 없습니다');
+      // console.log('FaceMeshModule이 없습니다');
       setFaceMeshError('네이티브 모듈 없음');
       return;
     }
 
-    console.log('FaceMeshModule 사용 가능한 메소드:', Object.keys(FaceMeshModule));
+    // console.log('FaceMeshModule 사용 가능한 메소드:', Object.keys(FaceMeshModule));
 
     try {
-      console.log('FaceMeshModule.initFaceMesh() 호출 중...');
+      // console.log('FaceMeshModule.initFaceMesh() 호출 중...');
       await FaceMeshModule.initFaceMesh();
       
-      console.log('FaceMesh 초기화 성공');
+      // console.log('FaceMesh 초기화 성공');
       setFaceMeshInitialized(true);
       setFaceMeshError(null);
       setStatus('FaceMesh 초기화 완료! Python 호환 모드로 인식 시작...');
       
-      console.log('Python 호환 리스너 설정 시작...');
+      // console.log('Python 호환 리스너 설정 시작...');
       setupFaceMeshListeners();
       
-      console.log('FaceMesh 처리 시작...');
+      // console.log('FaceMesh 처리 시작...');
       startFaceMeshProcessing();
       
-      console.log('FaceMesh 초기화 완료');
+      // console.log('FaceMesh 초기화 완료');
     } catch (err) {
-      console.log('FaceMesh 초기화 실패:', err.message);
+      // console.log('FaceMesh 초기화 실패:', err.message);
       setFaceMeshError(err.message);
     }
   };
 
   const setupFaceMeshListeners = () => {
-    console.log('📡 Python 호환 FaceMesh 이벤트 리스너 등록 중...');
+    // console.log('📡 Python 호환 FaceMesh 이벤트 리스너 등록 중...');
     
     DeviceEventEmitter.addListener('onFaceLandmarks', async (data) => {
       const { allLandmarks, faceCount, timestamp } = data; // 🔄 keyPoints 대신 allLandmarks 사용
       setTotalFrames(prev => prev + 1);
       
-      console.log(`🎯 얼굴 감지 결과: ${faceCount}개 얼굴, ${allLandmarks?.length || 0}개 랜드마크`);
+      // console.log(`🎯 얼굴 감지 결과: ${faceCount}개 얼굴, ${allLandmarks?.length || 0}개 랜드마크`);
       
       // 🚨 디버깅: 실제 데이터 형식 확인
-      console.log('🔍 allLandmarks 데이터 샘플:', allLandmarks?.slice(0, 5));
-      console.log('🔍 allLandmarks 타입:', typeof allLandmarks);
-      console.log('🔍 allLandmarks 길이:', allLandmarks?.length);
+      // console.log('🔍 allLandmarks 데이터 샘플:', allLandmarks?.slice(0, 5));
+      // console.log('🔍 allLandmarks 타입:', typeof allLandmarks);
+      // console.log('🔍 allLandmarks 길이:', allLandmarks?.length);
       
       if (!allLandmarks || allLandmarks.length < 300) {
-        console.log(`⚠️ 랜드마크 부족: ${allLandmarks?.length || 0}개 (최소 300개 필요)`);
+        // console.log(`⚠️ 랜드마크 부족: ${allLandmarks?.length || 0}개 (최소 300개 필요)`);
         return;
       }
 
       // 🔍 Python 코드에서 요구하는 포인트들 검증
-      console.log('🔍 ==================== Python 필수 포인트 검증 ====================');
+      // console.log('🔍 ==================== Python 필수 포인트 검증 ====================');
       
       // 👁 눈 랜드마크 검증 (12개)
       const eyeLandmarks = STANDARD_FACE_LANDMARKS.map((idx, i) => {
@@ -150,17 +150,17 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
             z: point.z || 0
           };
         }
-        console.log(`❌ 눈 포인트 ${idx} 누락 또는 잘못됨`);
+        // console.log(`❌ 눈 포인트 ${idx} 누락 또는 잘못됨`);
         return null;
       }).filter(Boolean);
       
-      console.log(`👁 눈 랜드마크: ${eyeLandmarks.length}/12개 추출 성공`);
-      if (eyeLandmarks.length === 12) {
-        console.log('✅ 우안 6개:', eyeLandmarks.slice(0, 6).map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
-        console.log('✅ 좌안 6개:', eyeLandmarks.slice(6, 12).map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
-      } else {
-        console.log('❌ 눈 랜드마크 부족! 누락된 포인트들을 확인하세요.');
-      }
+      // console.log(`👁 눈 랜드마크: ${eyeLandmarks.length}/12개 추출 성공`);
+      // if (eyeLandmarks.length === 12) {
+      //   console.log('✅ 우안 6개:', eyeLandmarks.slice(0, 6).map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
+      //   console.log('✅ 좌안 6개:', eyeLandmarks.slice(6, 12).map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
+      // } else {
+      //   console.log('❌ 눈 랜드마크 부족! 누락된 포인트들을 확인하세요.');
+      // }
       
       // 👄 입 랜드마크 검증 (4개)
       const mouthLandmarks = MOUTH_LANDMARKS.map(idx => {
@@ -173,16 +173,16 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
             z: point.z || 0
           };
         }
-        console.log(`❌ 입 포인트 ${idx} 누락 또는 잘못됨`);
+        // console.log(`❌ 입 포인트 ${idx} 누락 또는 잘못됨`);
         return null;
       }).filter(Boolean);
       
-      console.log(`👄 입 랜드마크: ${mouthLandmarks.length}/4개 추출 성공`);
-      if (mouthLandmarks.length === 4) {
-        console.log('✅ 입 좌표:', mouthLandmarks.map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
-      } else {
-        console.log('❌ 입 랜드마크 부족!');
-      }
+      // console.log(`👄 입 랜드마크: ${mouthLandmarks.length}/4개 추출 성공`);
+      // if (mouthLandmarks.length === 4) {
+      //   console.log('✅ 입 좌표:', mouthLandmarks.map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
+      // } else {
+      //   console.log('❌ 입 랜드마크 부족!');
+      // }
       
       // 🧠 머리 방향 랜드마크 검증 (5개)
       const headPoseLandmarks = HEAD_POSE_LANDMARKS.map(idx => {
@@ -195,16 +195,16 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
             z: point.z || 0
           };
         }
-        console.log(`❌ 헤드포즈 포인트 ${idx} 누락 또는 잘못됨`);
+        // console.log(`❌ 헤드포즈 포인트 ${idx} 누락 또는 잘못됨`);
         return null;
       }).filter(Boolean);
       
-      console.log(`🧠 머리 방향 랜드마크: ${headPoseLandmarks.length}/5개 추출 성공`);
-      if (headPoseLandmarks.length === 5) {
-        console.log('✅ 머리 좌표:', headPoseLandmarks.map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
-      } else {
-        console.log('❌ 머리 랜드마크 부족!');
-      }
+      // console.log(`🧠 머리 방향 랜드마크: ${headPoseLandmarks.length}/5개 추출 성공`);
+      // if (headPoseLandmarks.length === 5) {
+      //   console.log('✅ 머리 좌표:', headPoseLandmarks.map(p => `[${p.index}](${p.x.toFixed(1)},${p.y.toFixed(1)})`));
+      // } else {
+      //   console.log('❌ 머리 랜드마크 부족!');
+      // }
       
       // 🏗 Python 코드 형식으로 데이터 구성
       const motionData = {
@@ -214,11 +214,11 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
         headPoseLandmarks: headPoseLandmarks
       };
       
-      console.log('📦 Python 코드 형식 데이터:');
-      console.log('  - studyRoomId:', motionData.studyRoomId);
-      console.log('  - eyeLandmarks:', motionData.eyeLandmarks.length, '개');
-      console.log('  - mouthLandmarks:', motionData.mouthLandmarks.length, '개');
-      console.log('  - headPoseLandmarks:', motionData.headPoseLandmarks.length, '개');
+      // console.log('📦 Python 코드 형식 데이터:');
+      // console.log('  - studyRoomId:', motionData.studyRoomId);
+      // console.log('  - eyeLandmarks:', motionData.eyeLandmarks.length, '개');
+      // console.log('  - mouthLandmarks:', motionData.mouthLandmarks.length, '개');
+      // console.log('  - headPoseLandmarks:', motionData.headPoseLandmarks.length, '개');
       
       // 🎯 전체 데이터 유효성 확인
       const isValidData = eyeLandmarks.length === 12 && 
@@ -227,42 +227,42 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
       
       if (isValidData) {
         setValidDataCount(prev => prev + 1);
-        console.log('Python 데이터 추출 성공');
-        console.log(`성공률: ${validDataCount + 1}/${totalFrames} (${((validDataCount + 1)/totalFrames*100).toFixed(1)}%)`);
+        // console.log('Python 데이터 추출 성공');
+        // console.log(`성공률: ${validDataCount + 1}/${totalFrames} (${((validDataCount + 1)/totalFrames*100).toFixed(1)}%)`);
         
         // 3번마다 상세 JSON 출력
-        if (frameCount % 3 === 0) {
-          console.log('상세 JSON 데이터:', JSON.stringify(motionData, null, 2));
-        }
+        // if (frameCount % 3 === 0) {
+        //   console.log('상세 JSON 데이터:', JSON.stringify(motionData, null, 2));
+        // }
       } else {
-        console.log('데이터 부족');
-        console.log(`성공률: ${validDataCount}/${totalFrames} (${totalFrames > 0 ? (validDataCount/totalFrames*100).toFixed(1) : '0.0'}%)`);
+        // console.log('데이터 부족');
+        // console.log(`성공률: ${validDataCount}/${totalFrames} (${totalFrames > 0 ? (validDataCount/totalFrames*100).toFixed(1) : '0.0'}%)`);
       }
       
-      console.log('🔍 ==================== 검증 완료 ====================');
+      // console.log('🔍 ==================== 검증 완료 ====================');
 
       // 백엔드 전송 시뮬레이션
       if (isValidData) {
         try {
-          console.log('Python 백엔드로 데이터 전송 시뮬레이션');
+          // console.log('Python 백엔드로 데이터 전송 시뮬레이션');
           // 실제 전송 코드는 여기에
           // await fetch('http://your-python-backend.com/motion-data', {
           //   method: 'POST',
           //   headers: { 'Content-Type': 'application/json' },
           //   body: JSON.stringify(motionData),
           // });
-          console.log('전송 성공 (시뮬레이션)');
+          // console.log('전송 성공 (시뮬레이션)');
         } catch (err) {
-          console.error('전송 실패:', err.message);
+          // console.error('전송 실패:', err.message);
         }
       }
 
       setFaceCount(faceCount);
       setFrameCount(prev => {
         const newCount = prev + 1;
-        if (newCount % 20 === 0) {
-          console.log(`누적 처리: 총 ${newCount}프레임, 유효 ${validDataCount}프레임 (${(validDataCount/newCount*100).toFixed(1)}% 성공률)`);
-        }
+        // if (newCount % 20 === 0) {
+        //   console.log(`누적 처리: 총 ${newCount}프레임, 유효 ${validDataCount}프레임 (${(validDataCount/newCount*100).toFixed(1)}% 성공률)`);
+        // }
         return newCount;
       });
       setLastDetectionTime(new Date().toLocaleTimeString());
@@ -270,15 +270,15 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
     });
 
     DeviceEventEmitter.addListener('onFaceMeshError', (err) => {
-      console.error('FaceMesh 에러 발생:', err);
+      // console.error('FaceMesh 에러 발생:', err);
       setFaceMeshError(err.error || 'Unknown');
     });
     
-    console.log('Python 호환 FaceMesh 리스너 등록 완료');
+    // console.log('Python 호환 FaceMesh 리스너 등록 완료');
   };
 
   const startFaceMeshProcessing = () => {
-    console.log('FaceMesh 자동 처리 시작 (1초 간격)');
+    // console.log('FaceMesh 자동 처리 시작 (1초 간격)');
     let count = 0;
     
     faceMeshIntervalRef.current = setInterval(async () => {
@@ -286,9 +286,9 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
       
       try {
         if (!cameraReference.current) {
-          if (count % 10 === 0) {
-            console.log('카메라 참조가 준비되지 않음');
-          }
+          // if (count % 10 === 0) {
+          //   console.log('카메라 참조가 준비되지 않음');
+          // }
           return;
         }
 
@@ -299,23 +299,23 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
 
         const base64 = await RNFS.readFile(photo.path, 'base64');
         
-        if (count % 10 === 0) {
-          console.log(`FaceMesh 처리 완료 #${count}`);
-        }
+        // if (count % 10 === 0) {
+        //   console.log(`FaceMesh 처리 완료 #${count}`);
+        // }
 
         await FaceMeshModule.processCameraFrame(base64);
 
       } catch (err) {
-        if (count % 5 === 0) {
-          console.log(`처리 오류 #${count}:`, err.message);
-        }
+        // if (count % 5 === 0) {
+        //   console.log(`처리 오류 #${count}:`, err.message);
+        // }
         setFaceMeshError(err.message);
       }
     }, 1000);
   };
 
   const startCountdown = () => {
-    console.log('5초 카운트다운 시작');
+    // console.log('5초 카운트다운 시작');
     let c = 5;
     setCountdown(c);
     const timer = setInterval(() => {
@@ -325,23 +325,23 @@ export default function AlignPreview({ onGoBack, onGoToUnity }) {
         clearInterval(timer);
         setIsUnityReady(true);
         setStatus('스터디룸 입장 가능');
-        console.log('Unity 버튼 활성화 완료');
+        // console.log('Unity 버튼 활성화 완료');
       }
     }, 1000);
   };
 
   useEffect(() => {
     return () => {
-      console.log('AlignPreview 컴포넌트 정리 시작');
+      // console.log('AlignPreview 컴포넌트 정리 시작');
       if (faceMeshIntervalRef.current) {
         clearInterval(faceMeshIntervalRef.current);
-        console.log('FaceMesh 인터벌 정리 완료');
+        // console.log('FaceMesh 인터벌 정리 완료');
       }
     };
   }, []);
 
   if (!device || perm !== 'authorized') {
-    console.log('카메라 디바이스 또는 권한 문제:', { device: !!device, perm });
+    // console.log('카메라 디바이스 또는 권한 문제:', { device: !!device, perm });
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>카메라 권한이 필요합니다</Text>
